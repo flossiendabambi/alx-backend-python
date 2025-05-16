@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Environment
+.env
+
+# MySQL dumps
+*.sql
+
+# VSCode / PyCharm
+.vscode/
+.idea/
