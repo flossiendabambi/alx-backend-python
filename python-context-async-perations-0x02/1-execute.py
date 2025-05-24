@@ -30,3 +30,10 @@ class ExecuteQuery:
             self.cursor.close()
         if self.conn:
             self.conn.close()
+
+if __name__ == "__main__":
+    query = "SELECT * FROM users WHERE age > ?"
+    param = (25,)
+
+    with ExecuteQuery(query, param) as result:
+        print(result)
