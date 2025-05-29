@@ -1,13 +1,17 @@
 # views.py
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, filters
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
 
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['participants']
+    search_fields = ['participants__first_name', 'participants__last_name']
+    ordering_fields = ['conversation_id']
 
     def create(self, request, *args, **kwargs):
         participant_ids = request.data.get("participants", [])
