@@ -22,7 +22,7 @@ class GithubOrgClient:
         """Init method of GithubOrgClient"""
         self._org_name = org_name
 
-    # @memoize
+    @memoize
     def org(self) -> Dict:
         """Memoize org"""
         return get_json(self.ORG_URL.format(org=self._org_name))
