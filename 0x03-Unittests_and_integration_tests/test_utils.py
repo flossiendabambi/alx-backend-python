@@ -49,7 +49,7 @@ class TestGetJson(unittest.TestCase):
     ])
     def test_get_json(
         self,
-        test_url: str, 
+        test_url: str,
         test_payload: dict
     ) -> None:
         """Test that get_json returns the payload from a mocked response."""
