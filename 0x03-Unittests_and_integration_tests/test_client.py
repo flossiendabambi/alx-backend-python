@@ -20,17 +20,18 @@ class TestGithubOrgClient(unittest.TestCase):
     @patch('client.get_json')
     def test_org(self, org_name, mock_get_json):
         """Test that GithubOrgClient.org returns the correct value"""
-        expected_result = {"login": org_name}
-        mock_get_json.return_value = expected_result
+        expected_payload = {"login": org_name}
+        mock_get_json.return_value = expected_payload
 
         client = GithubOrgClient(org_name)
-        result = client.org()
+        result = client.org()  # Call once (memoized method)
 
-        # Assert that get_json was called once with the correct URL
+        # Verify get_json was called once with correct URL
         mock_get_json.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
-        # Assert the returned value is as expected
-        self.assertEqual(result, expected_result)
+
+        # Verify the result matches the mock return
+        self.assertEqual(result, expected_payload)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
