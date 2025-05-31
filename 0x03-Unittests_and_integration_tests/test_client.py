@@ -1,41 +1,54 @@
 #!/usr/bin/env python3
 import unittest
-from unittest.mock import patch, PropertyMock
-from parameterized import parameterized
+from unittest.mock import patch, Mock
+from parameterized import parameterized_class
+import requests
 
 from client import GithubOrgClient
+from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 
 
-class TestGithubOrgClient(unittest.TestCase):
-    """Unit tests for GithubOrgClient"""
+@parameterized_class([
+    {
+        "org_payload": org_payload,
+        "repos_payload": repos_payload,
+        "expected_repos": expected_repos,
+        "apache2_repos": apache2_repos,
+    }
+])
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """Integration test class for GithubOrgClient"""
 
-    @parameterized.expand([
-        ("google",),
-        ("abc",),
-    ])
-    @patch("client.get_json")
-    def test_org(self, org_name, mock_get_json):
-        """Test that .org returns correct org payload"""
-        expected = {"login": org_name}
-        mock_get_json.return_value = expected
+    @classmethod
+    def setUpClass(cls):
+        """Start patching requests.get with fixture responses"""
+        cls.get_patcher = patch("requests.get")
+        mock_get = cls.get_patcher.start()
 
-        client = GithubOrgClient(org_name)
-        self.assertEqual(client.org(), expected)
-        mock_get_json.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
+        # Create side_effect function to simulate .json() response for different URLs
+        def mocked_get(url):
+            mock_response = Mock()
+            if url == GithubOrgClient.ORG_URL.format(org="google"):
+                mock_response.json.return_value = cls.org_payload
+            elif url == cls.org_payload["repos_url"]:
+                mock_response.json.return_value = cls.repos_payload
+            else:
+                mock_response.json.return_value = None
+            return mock_response
 
-    def test_public_repos_url(self):
-        """Test that _public_repos_url returns correct repos_url from org"""
-        test_url = "https://api.github.com/orgs/test_org/repos"
+        mock_get.side_effect = mocked_get
 
-        with patch.object(
-            GithubOrgClient, "org", new_callable=PropertyMock
-        ) as mock_org:
-            mock_org.return_value = {"repos_url": test_url}
+    @classmethod
+    def tearDownClass(cls):
+        """Stop patching requests.get"""
+        cls.get_patcher.stop()
 
-            client = GithubOrgClient("test_org")
-            self.assertEqual(client._public_repos_url, test_url)
-            mock_org.assert_called_once()
+    def test_public_repos(self):
+        """Integration test for public_repos"""
+        client = GithubOrgClient("google")
+        self.assertEqual(client.public_repos(), self.expected_repos)
 
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_public_repos_with_license(self):
+        """Integration test for public_repos with license filter"""
+        client = GithubOrgClient("google")
+        self.assertEqual(client.public_repos(license="apache-2.0"), self.apache2_repos)
