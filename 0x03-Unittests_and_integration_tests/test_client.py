@@ -9,7 +9,10 @@ import requests
 
 
 # Fixtures used for integration tests
-org_payload = {"login": "testorg", "repos_url": "https://api.github.com/orgs/testorg/repos"}
+org_payload = {
+    "login": "testorg",
+    "repos_url": "https://api.github.com/orgs/testorg/repos"
+}
 repos_payload = [
     {"name": "repo1", "license": {"key": "apache-2.0"}},
     {"name": "repo2", "license": {"key": "mit"}},
