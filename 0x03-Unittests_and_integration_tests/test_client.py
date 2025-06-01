@@ -53,7 +53,7 @@ class TestGithubOrgClient(unittest.TestCase):
 
         with patch(
             "client.GithubOrgClient._public_repos_url",
-                   new_callable=PropertyMock
+                new_callable=PropertyMock
         ) as mock_repos_url:
             mock_repos_url.return_value = (
                 "https://api.github.com/orgs/test_org/repos"
@@ -102,9 +102,9 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         def side_effect(url):
             payload_map = {
                 "https://api.github.com/orgs/test_org":
-                     cls.org_payload,
+                    cls.org_payload,
                 "https://api.github.com/orgs/test_org/repos":
-                     cls.repos_payload,
+                    cls.repos_payload,
             }
             mock_response = unittest.mock.Mock()
             mock_response.json.return_value = payload_map[url]
@@ -129,6 +129,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
             client.public_repos(license="apache-2.0"),
             self.apache2_repos
         )
+
 
 if __name__ == "__main__":
     unittest.main()
