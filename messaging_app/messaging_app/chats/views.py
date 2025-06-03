@@ -25,8 +25,16 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
 
 class MessageViewSet(viewsets.ModelViewSet):
-    queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Message.objects.filter(Q(sender=user) | Q(recipient=user)).order_by('-timestamp')
+
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
 
     def create(self, request, *args, **kwargs):
         conversation_id = request.data.get("conversation_id")
@@ -43,3 +51,6 @@ class MessageViewSet(viewsets.ModelViewSet):
         message = Message.objects.create(message_id=conversation, message_body=message_body)
         serializer = self.get_serializer(message)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    
+    
