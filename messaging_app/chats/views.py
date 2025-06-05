@@ -1,7 +1,8 @@
 from rest_framework import viewsets, permissions
 from .models import User, Conversation, Message
 from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
-from .permissions import IsParticipant
+from .permissions import IsConversationParticipant, IsMessageParticipant
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -11,7 +12,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-    permission_classes = [permissions.IsAuthenticated, IsParticipant]
+    permission_classes = [permissions.IsAuthenticated, IsConversationParticipant]
 
     def get_queryset(self):
         return self.queryset.filter(participants=self.request.user)
@@ -19,7 +20,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsMessageParticipant]
 
     def get_queryset(self):
         return self.queryset.filter(message_id__participants=self.request.user)
