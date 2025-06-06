@@ -2,6 +2,8 @@ from rest_framework import viewsets, permissions
 from .models import User, Conversation, Message
 from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
 from .permissions import IsParticipantOfConversation
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import MessageFilter
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -21,12 +23,11 @@ class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated, IsParticipantOfConversation]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MessageFilter
 
     def get_queryset(self):
-        conversation_id = self.request.query_params.get("conversation_id")
-        if conversation_id:
-            return Message.objects.filter(message_id__conversation_id=conversation_id, message_id__participants=self.request.user)
-        return Message.objects.filter(message_id__participants=self.request.user)
+        return self.queryset.filter(message_id__participants=self.request.user)
     
     def create(self, request, *args, **kwargs):
         conversation_id = request.data.get("conversation_id")
