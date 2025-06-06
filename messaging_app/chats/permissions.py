@@ -18,5 +18,7 @@ class IsParticipantOfConversation(permissions.BasePermission):
 
         if isinstance(obj, Message):
             return request.user in obj.message_id.participants.all()
+            if request.method in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
+                return is_participant
 
         return False
