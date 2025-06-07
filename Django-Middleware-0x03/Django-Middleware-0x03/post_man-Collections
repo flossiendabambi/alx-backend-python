@@ -1,0 +1,60 @@
+{
+	"info": {
+		"_postman_id": "8c2aeff3-f9d1-42e0-b872-7bc96d4aa36a",
+		"name": "Message API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45682671",
+		"_collection_link": "https://florencendabambi.postman.co/workspace/Florence-Ndabambi's-Workspace~b18b5d7c-22d5-47d3-8466-4c64151e110b/collection/45682671-8c2aeff3-f9d1-42e0-b872-7bc96d4aa36a?action=share&source=collection_link&creator=45682671"
+	},
+	"item": [
+		{
+			"name": "New Request",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ5Mjk3NDk2LCJpYXQiOjE3NDkyOTY1OTYsImp0aSI6IjQ5NjE1NDQ5ZTBhNjRhMGI4MGUwZDU2ZmI1MTVkNGE4IiwidXNlcl9pZCI6ImY5YzYwNTk0LWIxM2UtNDlmMy1hNjk0LTU4NmJkZjg1NTkzNyJ9.ON8PdUXlUbMR0j0w3ur54Ur46yUOBJIa7UrkShDsfQc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"participants\": [\"f9c60594-b13e-49f3-a694-586bdf855937\"]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/conversations/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"conversations",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
