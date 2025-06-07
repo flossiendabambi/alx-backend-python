@@ -30,7 +30,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     filterset_class = MessageFilter
 
     def get_queryset(self):
-        return self.queryset.filter(conversation__participants=self.request.user)
+        return Message.objects.filter(conversation__participants=self.request.user)
 
     
     def create(self, request, *args, **kwargs):
