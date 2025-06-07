@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\LENOVO\desktop\alx-backend-python\messaging_app\venv
+set VIRTUAL_ENV=C:\Users\LENOVO\desktop\alx-backend-python\Django-Middleware-0x03\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
