@@ -56,14 +56,13 @@ class OffensiveLanguageMiddleware:
             return x_forwarded_for.split(',')[0]
         return request.META.get('REMOTE_ADDR')
 
-class RolePermissionMiddleware:
+class RolepermissionMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
         # Only check authenticated users
         if request.user.is_authenticated:
-            # You can adjust path checking to match protected routes
             if request.path.startswith('/api/messages/') and request.method in ['POST', 'PUT', 'DELETE']:
                 user_role = getattr(request.user, 'role', 'user')
                 if user_role not in ['admin', 'moderator']:
