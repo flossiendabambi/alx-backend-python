@@ -1,17 +1,18 @@
-from datetime import datetime
+from datetime import datetime, time
+from django.http import HttpResponseForbidden
 
-class RequestLoggingMiddleware:
+class RestrictAccessByTimeMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        # Open the log file in append mode
-        self.log_file = "requests.log"
 
     def __call__(self, request):
-        user = request.user if request.user.is_authenticated else "Anonymous"
-        log_message = f"{datetime.now()} - User: {user} - Path: {request.path}\n"
-        
-        with open(self.log_file, "a") as f:
-            f.write(log_message)
+        # Define allowed access hours
+        start_time = time(18, 0)  # 6 PM
+        end_time = time(21, 0)    # 9 PM
+        now = datetime.now().time()
 
-        response = self.get_response(request)
-        return response
+        # Restrict access to URLs starting with "/api/chats" (you can adjust this path)
+        if request.path.startswith('/api/') and not (start_time <= now <= end_time):
+            return HttpResponseForbidden("Chat access is only allowed between 6 PM and 9 PM.")
+
+        return self.get_response(request)
