@@ -1,8 +1,0 @@
-{% for reply in replies %}
-    <div style="margin-left: 20px;">
-        <p><strong>{{ reply.sender.username }}</strong>: {{ reply.content }}</p>
-        
-        <!-- Recurse into deeper replies -->
-        {% include "messaging/message_replies.html" with replies=reply.replies.all %}
-    </div>
-{% endfor %}
