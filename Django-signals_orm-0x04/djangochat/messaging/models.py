@@ -1,23 +1,35 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 
+class Conversation(models.Model):
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='conversations')
+    
+
+    def __str__(self):
+        return f"Conversation {self.id}"
+    
 class Message(models.Model):
-    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
-    receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_messages')
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)
-    edited_by = models.ForeignKey(User, null=True, blank=True, related_name='edited_messages', on_delete=models.SET_NULL)
+    edited_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, related_name='edited_messages', on_delete=models.SET_NULL)
     parent_message = models.ForeignKey(
         'self',
         null=True,
         blank=True,
         related_name='replies',
         on_delete=models.CASCADE  # delete replies if parent is deleted
-    )
+    ) # parent_message
 
     def __str__(self):
         return f"From {self.sender} to {self.receiver}: {self.content[:30]}"
+    
+        class Meta:
+            ordering = ['timestamp']
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # the receiver of the message
