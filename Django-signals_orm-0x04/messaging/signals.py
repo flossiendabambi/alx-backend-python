@@ -23,11 +23,12 @@ def log_message_edit(sender, instance, **kwargs):
             instance.edited = True
             
 @receiver(post_delete, sender=User)
-def cleanup_user_data(sender, instance, **kwargs):
-    # Delete notifications where user was the recipient
+def cleanup_user_related_data(sender, instance, **kwargs):
+    # Delete messages where user was sender or receiver
+    Message.objects.filter(Q(sender=instance) | Q(receiver=instance)).delete()
+
+    # Delete notifications for this user
     Notification.objects.filter(user=instance).delete()
 
-    # Delete message histories for messages sent or edited by this user
-    MessageHistory.objects.filter(
-        edited_by=instance
-    ).delete()
+    # Delete message histories where user edited messages
+    MessageHistory.objects.filter(edited_by=instance).delete()
