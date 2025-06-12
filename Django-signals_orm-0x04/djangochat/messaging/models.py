@@ -9,12 +9,18 @@ class Conversation(models.Model):
     def __str__(self):
         return f"Conversation {self.id}"
     
+class UnreadMessagesManager(models.Manager):
+    def for_user(self, user):
+        # Filter unread messages for the given user (receiver)
+        return self.filter(receiver=user, read=False).only('id', 'sender', 'content', 'timestamp')
+    
 class Message(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_messages')
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)
     edited = models.BooleanField(default=False)
     edited_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, related_name='edited_messages', on_delete=models.SET_NULL)
     parent_message = models.ForeignKey(
@@ -25,6 +31,9 @@ class Message(models.Model):
         on_delete=models.CASCADE  # delete replies if parent is deleted
     ) # parent_message
 
+    objects = models.Manager()  # Default manager
+    unread = UnreadMessagesManager()
+    
     def __str__(self):
         return f"From {self.sender} to {self.receiver}: {self.content[:30]}"
     

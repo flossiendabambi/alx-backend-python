@@ -66,3 +66,8 @@ def conversation_detail(request, conversation_id):
         'messages': threaded_messages,
         'form': form
     })
+    
+def inbox(request):
+    user = request.user
+    unread_messages = Message.unread.for_user(user)
+    return render(request, 'messaging/inbox.html', {'unread_messages': unread_messages})
