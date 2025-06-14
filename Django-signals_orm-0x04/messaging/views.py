@@ -46,9 +46,11 @@ def conversation_detail(request, conversation_id):
     if request.method == 'POST':
         form = MessageForm(request.POST)
         if form.is_valid():
+            sender = request.user  
+            receiver = conversation.participants.exclude(id=sender.id).first()
             new_msg = form.save(commit=False)
-            new_msg.sender = request.user
-            new_msg.receiver = conversation.participants.exclude(id=request.user.id).first()
+            new_msg.sender = sender
+            new_msg.receiver = receiver
             new_msg.conversation = conversation
             new_msg.save()
             return redirect('conversation_detail', conversation_id=conversation_id)
