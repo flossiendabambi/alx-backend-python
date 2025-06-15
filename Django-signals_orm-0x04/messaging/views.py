@@ -45,7 +45,7 @@ def conversation_detail(request, conversation_id):
 
     if request.method == 'POST':
         form = MessageForm(request.POST)
-        sender = request.user
+        sender=request.user
         if form.is_valid():
             receiver = conversation.participants.exclude(id=sender.id).first()
             new_msg = form.save(commit=False)
