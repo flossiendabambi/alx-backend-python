@@ -6,6 +6,39 @@ from django.contrib.auth.models import User
 from .models import Message, Conversation
 from django.db.models import Prefetch
 from .forms import MessageForm
+from django.views.decorators.cache import cache_page
+
+
+@cache_page(60)  # cache this view for 60 seconds
+def conversation_detail(request, conversation_id):
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            sender = request.user
+            receiver = conversation.participants.exclude(id=sender.id).first()
+            new_msg = form.save(commit=False)
+            new_msg.sender = sender
+            new_msg.receiver = receiver
+            new_msg.conversation = conversation
+            new_msg.save()
+            return redirect('conversation_detail', conversation_id=conversation_id)
+    else:
+        form = MessageForm()
+
+    all_messages = Message.objects.filter(conversation=conversation).select_related(
+        'sender', 'receiver', 'parent_message'
+    ).order_by('timestamp')
+
+    threaded_messages = build_threaded_messages(all_messages)
+
+    return render(request, 'messaging/conversation_detail.html', {
+        'conversation': conversation,
+        'messages': threaded_messages,
+        'form': form
+    })
+
 
 User = get_user_model()
 
