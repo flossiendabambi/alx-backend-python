@@ -39,7 +39,7 @@ def build_threaded_messages(messages):
 
     return top_level
 
-
+@cache_page(60)
 def conversation_detail(request, conversation_id):
     conversation = get_object_or_404(Conversation, id=conversation_id)
 
