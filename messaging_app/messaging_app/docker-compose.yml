@@ -18,7 +18,7 @@ services:
     build:
       context: ../
       dockerfile: messaging_app/Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
       - ../:/app
     ports:
