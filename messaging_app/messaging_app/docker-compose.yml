@@ -13,6 +13,8 @@ services:
       - db_data:/var/lib/mysql
     ports:
       - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   web:
     build:
@@ -29,5 +31,5 @@ services:
       - db
 
 volumes:
-  db_data:
+  mysql_data:
 
