@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Scale the Django deployment to 3 replicas
+echo "Scaling Django app to 3 replicas..."
+kubectl scale deployment django-messaging-app --replicas=3
+
+# Wait for pods to be ready
+echo "Waiting for pods to start..."
+sleep 10
+
+# Verify pods
+echo "Checking running pods:"
+kubectl get pods -l app=django-messaging
+
+# Optional: Forward a port for load testing (if service is ClusterIP)
+echo "Forwarding port 8000 to localhost..."
+kubectl port-forward svc/django-messaging-service 8000:8000 &
+sleep 5
+
+# Run load test using wrk (must be installed)
+echo "Running load test using wrk..."
+wrk -t4 -c100 -d15s http://localhost:8000/
+
+# Monitor resource usage (requires metrics-server)
+echo "Monitoring resource usage..."
+kubectl top pods
+
