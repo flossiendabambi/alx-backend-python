@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: django
-        image: your-django-image:green
+        image: django-image:green
         ports:
         - containerPort: 8000

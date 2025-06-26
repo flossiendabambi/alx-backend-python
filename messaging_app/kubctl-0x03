@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+echo "🚀 Applying blue deployment update (image v2.0)..."
+kubectl apply -f blue_deployment.yaml
+
+echo "🔄 Monitoring rolling update..."
+kubectl rollout status deployment/django-blue
+
+echo "🧪 Testing for downtime..."
+SERVICE_IP=$(minikube service django-service --url)
+
+for i in {1..10}; do
+  curl --max-time 2 $SERVICE_IP || echo "❌ Request failed"
+  sleep 1
+done
+
+echo "✅ Current pods after update:"
+kubectl get pods -l app=django,version=blue
