@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+echo "📦 Applying Blue Deployment"
+kubectl apply -f blue_deployment.yaml
+
+echo "📦 Applying Green Deployment"
+kubectl apply -f green_deployment.yaml
+
+echo "🔁 Switching service to Green (edit selector manually or in script if desired)"
+kubectl apply -f kubeservice.yaml
+echo "🔍 Checking logs for green deployment pods..."
+GREEN_PODS=$(kubectl get pods -l app=django,version=green -o name)
+
+for pod in $GREEN_PODS; do
+  echo "📄 Logs for $pod"
+  kubectl logs $pod
+done
