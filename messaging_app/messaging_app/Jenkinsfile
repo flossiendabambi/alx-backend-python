@@ -3,10 +3,11 @@ pipeline {
 
     environment {
         VENV = 'venv'
+        IMAGE_NAME = 'flossiendabambi/messaging-app'
     }
 
     stages {
-        stage('Clone Specific Branch') {
+        stage('Checkout Repo') {
             steps {
                 git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/flossiendabambi/alx-backend-python.git'
             }
@@ -15,14 +16,13 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh 'python3 -m venv venv'
-                sh './venv/bin/pip3 install --upgrade pip'
-                sh './venv/bin/pip3 install -r messaging_app/requirements.txt'
+                sh './venv/bin/pip install -r messaging_app/requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh './venv/bin/python3 -m pytest messaging_app/tests --junitxml=report.xml'
+                sh './venv/bin/python -m pytest messaging_app/tests --junitxml=report.xml'
             }
         }
 
@@ -31,11 +31,26 @@ pipeline {
                 junit 'report.xml'
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME messaging_app/'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                    sh 'docker push $IMAGE_NAME'
+                }
+            }
+        }
     }
 
     post {
         always {
-            echo 'Pipeline completed.'
+            echo 'Pipeline finished.'
         }
     }
 }
