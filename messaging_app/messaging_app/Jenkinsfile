@@ -6,23 +6,23 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Clone Specific Branch') {
             steps {
-                git credentialsId: 'github-token', url: 'https://github.com/flossiendabambi/alx-backend-python.git'
+                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/flossiendabambi/alx-backend-python.git'
             }
         }
 
-        stage('Set up Python') {
+        stage('Install Dependencies') {
             steps {
                 sh 'python3 -m venv venv'
-                sh './venv/bin/pip install --upgrade pip'
-                sh './venv/bin/pip install -r requirements.txt'
+                sh './venv/bin/pip3 install --upgrade pip'
+                sh './venv/bin/pip3 install -r messaging_app/requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh './venv/bin/pytest --junitxml=report.xml'
+                sh './venv/bin/python3 -m pytest messaging_app/tests --junitxml=report.xml'
             }
         }
 
@@ -35,7 +35,7 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline finished!'
+            echo 'Pipeline completed.'
         }
     }
 }
