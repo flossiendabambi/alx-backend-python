@@ -1,0 +1,66 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_pass
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    env:
+      DB_NAME: test_db
+      DB_USER: test_user
+      DB_PASSWORD: test_pass
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DJANGO_SECRET_KEY: secretkeyforci
+      PYTHONUNBUFFERED: 1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r messaging_app/requirements.txt
+
+      - name: Wait for MySQL to be ready
+        run: |
+          sudo apt-get install -y mysql-client
+          until mysql -h 127.0.0.1 -P 3306 -u"$DB_USER" -p"$DB_PASSWORD" -e "SHOW DATABASES;"; do
+            echo "Waiting for MySQL..."
+            sleep 5
+          done
+
+      - name: Run Django migrations
+        run: |
+          python messaging_app/manage.py migrate
+        env:
+          DJANGO_SETTINGS_MODULE: messaging_app.settings
+
+      - name: Run tests
+        run: |
+          python messaging_app/manage.py test
+        env:
+          DJANGO_SETTINGS_MODULE: messaging_app.settings
