@@ -1,8 +1,12 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.10-slim'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
     environment {
-        VENV = 'venv'
         IMAGE_NAME = 'flossiendabambi/messaging-app'
     }
 
@@ -15,14 +19,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'python3 -m venv venv'
                 sh './venv/bin/pip install -r messaging_app/requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh './venv/bin/python -m pytest messaging_app/tests --junitxml=report.xml'
+                sh 'pytest messaging_app/tests --junitxml=report.xml'
             }
         }
 
